@@ -10,7 +10,6 @@ const program = new commander.Command();
 
 program
     .version(pkg.version)
-    .option('--dev', '运行开发服务器')
     .option('-c, --config <file>', '自定义配置文件')
     .parse(process.argv);
 
@@ -18,20 +17,58 @@ const options = program.opts();
 
 const configFile = options.config;
 
-let customConfig;
+let config;
 try {
-    customConfig = require(path.resolve(process.cwd(), configFile));
+    config = require(path.resolve(process.cwd(), configFile));
 } catch (e) {
     console.error(`无法加载自定义配置文件 ${configFile}: ${e.message}`);
     process.exit(1);
 }
 
+const env = config.env ||= {};
+const wiyEnv = env.WIY ||= {};
+wiyEnv.DEV ||= false;
+wiyEnv.PUBLIC_PATH ||= '/';
+wiyEnv.BUILD_DIST ||= 'dist'
+
+const flattenObj = (obj, prefix) => {
+    return Object.entries(obj).reduce((result, [key, value]) => {
+        const newKey = prefix ? `${prefix}.${key}` : key;
+        if (typeof value == 'object') {
+            Object.entries(flattenObj(value, newKey)).forEach(([k, v]) => {
+                result[k] = v;
+            });
+        } else {
+            result[newKey] = value;
+        }
+        return result;
+    }, {});
+};
+const flattendEnv = flattenObj(env);
+
+const customConfig = {
+    mode: wiyEnv.DEV ? 'development' : 'production',
+    output: {
+        publicPath: wiyEnv.PUBLIC_PATH,
+        path: path.resolve(process.cwd(), wiyEnv.BUILD_DIST),
+    },
+    plugins: [
+        new webpack.EnvironmentPlugin(flattendEnv),
+    ],
+    devServer: {
+        historyApiFallback: {
+            index: path.join(wiyEnv.PUBLIC_PATH, 'index.html'),
+        },
+    },
+}
+delete config.env;
+
 const defaultConfig = require('../config/webpack.config.js');
-const mergedConfig = merge(defaultConfig, customConfig);
+const mergedConfig = merge(defaultConfig, customConfig, config);
 
 const compiler = webpack(mergedConfig);
 
-if (options.dev) {
+if (wiyEnv.DEV) {
     const devServerOptions = { ...mergedConfig.devServer };
     const server = new WebpackDevServer(devServerOptions, compiler);
     server.start();
