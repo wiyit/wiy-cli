@@ -18,6 +18,18 @@ module.exports = {
                 use: [
                     {
                         loader: 'html-loader',
+                        options: {
+                            sources: {
+                                list: [
+                                    '...',
+                                    {
+                                        tag: 'wiy-image',
+                                        attribute: 'src',
+                                        type: 'src',
+                                    },
+                                ],
+                            },
+                        },
                     },
                     {
                         loader: 'posthtml-loader',
