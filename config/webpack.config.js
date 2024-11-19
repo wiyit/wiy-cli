@@ -5,8 +5,23 @@ module.exports = {
         app: './src/app.js',
     },
     output: {
-        filename: '[name].bundle.js',
+        filename: '[name].[contenthash].js',
+        chunkFilename: '[contenthash].js',
+        assetModuleFilename: '[contenthash][ext][query]',
         clean: true,
+    },
+    optimization: {
+        moduleIds: 'deterministic',
+        runtimeChunk: 'single',
+        splitChunks: {
+            cacheGroups: {
+                vendors: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all',
+                },
+            },
+        },
     },
     plugins: [
         new HtmlWebpackPlugin({}),
