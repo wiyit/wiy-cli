@@ -30,6 +30,7 @@ module.exports = {
             patterns: [
                 {
                     from: 'public',
+                    noErrorOnMissing: true,
                 },
             ],
         }),
@@ -48,6 +49,21 @@ module.exports = {
                                     {
                                         tag: 'wiy-image',
                                         attribute: 'src',
+                                        type: 'src',
+                                    },
+                                    {
+                                        tag: 'wiy-image',
+                                        attribute: 'default',
+                                        type: 'src',
+                                    },
+                                    {
+                                        tag: 'wiy-video',
+                                        attribute: 'src',
+                                        type: 'src',
+                                    },
+                                    {
+                                        tag: 'wiy-video',
+                                        attribute: 'default',
                                         type: 'src',
                                     },
                                 ],
