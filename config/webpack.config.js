@@ -1,5 +1,6 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const path = require('path');
 
 module.exports = {
     entry: {
@@ -35,10 +36,18 @@ module.exports = {
             ],
         }),
     ],
+    resolveLoader: {
+        modules: [
+            path.resolve(__dirname, '../node_modules'),//for local link
+            path.resolve(__dirname, '../../..'),//for pnpm
+            'node_modules',
+        ],
+    },
     module: {
         rules: [
             {
                 test: /\.html$/i,
+                issuer: /\.js$/i,
                 use: [
                     {
                         loader: 'html-loader',
@@ -88,6 +97,7 @@ module.exports = {
             },
             {
                 test: /\.((c|sa|sc)ss)$/i,
+                issuer: /\.js$/i,
                 use: [
                     {
                         loader: 'css-loader',
