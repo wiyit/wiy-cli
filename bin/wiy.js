@@ -3,7 +3,9 @@ const pkg = require('../package.json');
 const commander = require('commander');
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
+const fs = require('fs');
 const { merge } = require('webpack-merge');
 
 const program = new commander.Command();
@@ -46,6 +48,8 @@ const flattenObj = (obj, prefix) => {
 };
 const flattendEnv = flattenObj(env);
 
+const indexHtmlTemplatePath = path.resolve(process.cwd(), './index.html');
+
 const customConfig = {
     mode: wiyEnv.DEV ? 'development' : 'production',
     output: {
@@ -53,6 +57,11 @@ const customConfig = {
         path: path.resolve(process.cwd(), wiyEnv.BUILD_DIST),
     },
     plugins: [
+        new HtmlWebpackPlugin({
+            ...(fs.existsSync(indexHtmlTemplatePath) ? {
+                template: indexHtmlTemplatePath,
+            } : undefined),
+        }),
         new webpack.EnvironmentPlugin(flattendEnv),
     ],
     devServer: {
